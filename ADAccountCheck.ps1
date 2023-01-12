@@ -29,6 +29,7 @@
                 Firstname = $ADUser.GivenName
                 Lastname = $ADUser.Surname
                 SamAccountName = $ADUser.SamAccountName
+                Mail = $ADUser.mail
                 DistinguishedName = $ADUser.DistinguishedName
                 Lockedout = $ADUser.lockedout
                 IsActive = $ADUser.Enabled

@@ -1,53 +1,40 @@
-Function Get-FileName($initialDirectory) {
-	$dialog = [System.Windows.Forms.OpenFileDialog]::new()
-	$dialog.InitialDirectory = $initialDirectory
-	$dialog.RestoreDirectory = $true
-	$result = $dialog.ShowDialog()
-	
-	if($result -eq [System.Windows.Forms.DialogResult]::OK){
-		return $dialog.FileName
-	}
-}
-Function NewLine{
-	Write-Host "`n"
-}
-$Hash = @()
-$Selection = @(
-	"SHA1",
-	"SHA256",
-	"SHA384",
-	"SHA512",
-	"MD5",
-	"MACTripleDES",
-	"RIPEMD160",
-	"Select new File",
-	"Exit"
-)
-$FileName = Get-FileName
-Write-Host "$FileName"
-NewLine
-while($true){
-	$counter = 0
-	write-host "Select Algorithm"
-	NewLine
-	foreach($Option in $Selection){
-		write-host "($($counter)) $($Option)"
-		$counter = $counter + 1
-	}
-	[string]$InputSelection = Read-Host
-	switch ($InputSelection){
-		{$_ -eq "0"}{$Hash = Get-FileHash -Path "$FileName" -Algorithm SHA1}
-		{$_ -eq "1"}{$Hash = Get-FileHash -Path "$FileName" -Algorithm SHA256}
-		{$_ -eq "2"}{$Hash = Get-FileHash -Path "$FileName" -Algorithm SHA384}
-		{$_ -eq "3"}{$Hash = Get-FileHash -Path "$FileName" -Algorithm SHA512}
-		{$_ -eq "4"}{$Hash = Get-FileHash -Path "$FileName" -Algorithm MD5}
-		{$_ -eq "5"}{$Hash = Get-FileHash -Path "$FileName" -Algorithm MACTripleDES}
-		{$_ -eq "6"}{$Hash = Get-FileHash -Path "$FileName" -Algorithm RIPEMD160}
-		{$_ -eq "7"}{$FileName = Get-FileName}
-		{$_ -eq "8"}{exit}
-	}
-	Start-Sleep -Seconds 1
-	NewLine
-	write-host "$($Hash.Hash)"
-	NewLine
+function All-FileHash {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true,ValuefromPipeline=$true)]
+        [string]$FilePath = "$(Read-Host "Please Enter a File Path")"
+    )
+    try {
+        if([bool]$(Test-Path -Path $FilePath -PathType Any)){
+            $Hash = @(
+            "$((Get-FileHash -Path $FilePath -Algorithm SHA1).Hash)",
+            "$((Get-FileHash -Path $FilePath -Algorithm SHA256).Hash)",
+            "$((Get-FileHash -Path $FilePath -Algorithm SHA384).Hash)",
+            "$((Get-FileHash -Path $FilePath -Algorithm SHA512).Hash)",
+            "$((Get-FileHash -Path $FilePath -Algorithm MD5).Hash)",
+            "$((Get-FileHash -Path $FilePath -Algorithm MACTripleDES).Hash)",
+            "$((Get-FileHash -Path $FilePath -Algorithm RIPEMD160).Hash)"
+            )
+            $Output = [PSCustomObject]@{
+                SHA1 = $Hash[0]
+                SHA256 = $Hash[1]
+                SHA384 = $Hash[2]
+                SHA512 = $Hash[3]
+                MD5 = $Hash[4]
+                MACTripleDES = $Hash[5]
+                RIPEMD160 = $Hash[6]
+            }
+        return $Output
+        }
+        
+        else {
+            Write-Host "File $FilePath not found" -ForegroundColor Red
+            return $null
+        }
+    }
+    catch {
+        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "Line: $($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
+        Write-Host "File: $($_.InvocationInfo.ScriptName)" -ForegroundColor Red
+    }
 }

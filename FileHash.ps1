@@ -5,7 +5,7 @@ function All-FileHash {
         [string]$FilePath = "$(Read-Host "Please Enter a File Path")"
     )
     try {
-        if([bool]$(Test-Path -Path $FilePath -PathType Any)){
+        if([bool]$(Test-Path -Path $FilePath -PathType Leaf)){
             $Hash = @(
             "$((Get-FileHash -Path $FilePath -Algorithm SHA1).Hash)",
             "$((Get-FileHash -Path $FilePath -Algorithm SHA256).Hash)",

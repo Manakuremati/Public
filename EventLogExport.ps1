@@ -11,7 +11,7 @@ $LogTypes = @("Application","Security","System")
 $WarnMsg = "Log was not tansfered to storage server in time, EventLog has not been cleared and manual check is needed! `n"
 $InfMsg = "Log, additional time for file transfer granted"
 
-Write-Host "Completed Variable check `n"
+Write-Host "Completed Variable check"
 Write-Host "Starting Folder check"
 
 foreach($Server in $Servers){
@@ -19,8 +19,8 @@ foreach($Server in $Servers){
         if(!(Test-Path -path "${LocalPath}$Server" )){New-Item -name $Server -Path "${LocalPath}" -ItemType Directory}
     New-Item -name $DateYear -Path "${LocalPath}$Server" -ItemType Directory}
 }
-Write-Host "Completed Folder check `n"
-Write-host "Starting EventLog Export on all Servers`nThis may take a while..."
+Write-Host "Completed Folder check"
+Write-host "Starting EventLog Export on all Servers. This may take a while..."
 
 foreach($Type in $LogTypes){
     foreach($Server in $Servers){
@@ -29,7 +29,7 @@ foreach($Type in $LogTypes){
     Start-Sleep -s 2
 }
 
-Write-Host "Completed EventLog Export on all Servers `n"
+Write-Host "Completed EventLog Export on all Servers"
 Write-Host "Starting File Copy from all Servers and File check"
 
 foreach($Type in $LogTypes){
@@ -49,4 +49,4 @@ foreach($Type in $LogTypes){
     Write-Host "${Server}: File Check completed"
     }
 }
-Read-Host -Prompt "`nScript finished, press Enter to exit"
+Read-Host -Prompt "Script finished, press Enter to exit"

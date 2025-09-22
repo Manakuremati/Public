@@ -1,23 +1,34 @@
-function Prevent-ScreenLock {
+function ScreenAlive {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false,ValueFromPipeline=$true,ParameterSetName="Time")]
-        [Int32]$Time = $(Read-Host "Please Enter a Time"))
-    $WShell = New-Object -com "WScript.shell"
-    $counter = 0
-    try{
-        while($true){
-            $WShell.sendkeys("{SCROLLLOCK}")
-		    start-sleep -Milliseconds 100
-		    $WShell.sendkeys("{SCROLLLOCK}")
-		    $counter = $Counter + 1
-		    Echo "$($Counter)"
-		    start-sleep -Seconds $Time 
+        [Parameter(Mandatory = $false)]
+        [int]$DelaySeconds = 5
+    )
+
+    $ES_CONTINUOUS        = 0x80000000
+    $ES_SYSTEM_REQUIRED   = 0x00000001
+    $ES_DISPLAY_REQUIRED  = 0x00000002
+    $executionFlags = $ES_CONTINUOUS -bor $ES_SYSTEM_REQUIRED -bor $ES_DISPLAY_REQUIRED
+
+    $signature = @"
+	[DllImport("kernel32.dll")]
+    public static extern uint SetThreadExecutionState(uint esFlags);
+"@
+    Add-Type -MemberDefinition $signature -Name "PowerHelper" -Namespace "WinAPI" -PassThru | Out-Null
+
+    try {
+        Write-Host "ScreenAlive started – keeping the session alive (ping every $DelaySeconds sec)."
+
+        while ($true) {
+            [WinAPI.PowerHelper]::SetThreadExecutionState($executionFlags) | Out-Null
+
+            $now = Get-Date -Format "HH:mm:ss"
+            Write-Host "[$now] Ping sent – system stays awake."
+            Start-Sleep -Seconds $DelaySeconds
         }
     }
-    catch {
-        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-        Write-Host "Line: $($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
-        Write-Host "File: $($_.InvocationInfo.ScriptName)" -ForegroundColor Red
+    finally {
+        [WinAPI.PowerHelper]::SetThreadExecutionState($ES_CONTINUOUS) | Out-Null
+        Write-Host "`nScreenAlive stopped – default power settings restored." -ForegroundColor Yellow
     }
 }

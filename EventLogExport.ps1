@@ -1,5 +1,4 @@
 Write-Host "EventLog Export Script has been started"
-Start-Sleep -s 1
 Write-Host "Starting Variable check"
 
 $Servers = Get-Content "PATH TO SERVER CSV FILE"
@@ -13,7 +12,6 @@ $WarnMsg = "Log was not tansfered to storage server in time, EventLog has not be
 $InfMsg = "Log, additional time for file transfer granted"
 
 Write-Host "Completed Variable check `n"
-Start-Sleep -s 1
 Write-Host "Starting Folder check"
 
 foreach($Server in $Servers){
@@ -22,7 +20,6 @@ foreach($Server in $Servers){
     New-Item -name $DateYear -Path "${LocalPath}$Server" -ItemType Directory}
 }
 Write-Host "Completed Folder check `n"
-Start-Sleep -s 1
 Write-host "Starting EventLog Export on all Servers`nThis may take a while..."
 
 foreach($Type in $LogTypes){
@@ -33,7 +30,6 @@ foreach($Type in $LogTypes){
 }
 
 Write-Host "Completed EventLog Export on all Servers `n"
-Start-Sleep -s 1
 Write-Host "Starting File Copy from all Servers and File check"
 
 foreach($Type in $LogTypes){
